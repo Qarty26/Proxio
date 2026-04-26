@@ -1,0 +1,46 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE WEEKLY OFFER
+POST {{baseUrl}}/weekly-offers
+Content-Type: application/json
+
+{
+  "product": {
+    "id": 1
+  },
+  "location": {
+    "id": 1
+  },
+  "pricePerUnit": 8.5,
+  "availableQuantity": 50,
+  "validFrom": "2026-04-27",
+  "validUntil": "2026-05-03",
+  "note": "Fresh weekly offer"
+}
+
+### GET ALL WEEKLY OFFERS
+GET {{baseUrl}}/weekly-offers
+
+### GET WEEKLY OFFER BY ID
+GET {{baseUrl}}/weekly-offers/1
+
+### UPDATE WEEKLY OFFER
+PUT {{baseUrl}}/weekly-offers/1
+Content-Type: application/json
+
+{
+  "product": {
+    "id": 1
+  },
+  "location": {
+    "id": 1
+  },
+  "pricePerUnit": 7.9,
+  "availableQuantity": 40,
+  "validFrom": "2026-04-27",
+  "validUntil": "2026-05-03",
+  "note": "Updated weekly offer"
+}
+
+### DELETE WEEKLY OFFER
+DELETE {{baseUrl}}/weekly-offers/1

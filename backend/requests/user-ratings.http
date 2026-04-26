@@ -1,0 +1,54 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE USER RATING
+POST {{baseUrl}}/user-ratings
+Content-Type: application/json
+
+{
+  "rater": {
+    "id": 1
+  },
+  "rated": {
+    "id": 2
+  },
+  "order": {
+    "id": 1
+  },
+  "moderatedBy": {
+    "id": 1
+  },
+  "score": 5,
+  "comment": "Great service",
+  "status": "PENDING"
+}
+
+### GET ALL USER RATINGS
+GET {{baseUrl}}/user-ratings
+
+### GET USER RATING BY ID
+GET {{baseUrl}}/user-ratings/1
+
+### UPDATE USER RATING
+PUT {{baseUrl}}/user-ratings/1
+Content-Type: application/json
+
+{
+  "rater": {
+    "id": 1
+  },
+  "rated": {
+    "id": 2
+  },
+  "order": {
+    "id": 1
+  },
+  "moderatedBy": {
+    "id": 1
+  },
+  "score": 4,
+  "comment": "Updated review",
+  "status": "APPROVED"
+}
+
+### DELETE USER RATING
+DELETE {{baseUrl}}/user-ratings/1

@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE STOCK
+POST {{baseUrl}}/stocks
+Content-Type: application/json
+
+{
+  "location": {
+    "id": 1
+  },
+  "product": {
+    "id": 1
+  },
+  "quantity": 100
+}
+
+### GET ALL STOCKS
+GET {{baseUrl}}/stocks
+
+### GET STOCK BY ID
+GET {{baseUrl}}/stocks/1
+
+### UPDATE STOCK
+PUT {{baseUrl}}/stocks/1
+Content-Type: application/json
+
+{
+  "location": {
+    "id": 1
+  },
+  "product": {
+    "id": 1
+  },
+  "quantity": 75
+}
+
+### DELETE STOCK
+DELETE {{baseUrl}}/stocks/1

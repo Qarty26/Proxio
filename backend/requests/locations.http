@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE LOCATION
+POST {{baseUrl}}/locations
+Content-Type: application/json
+
+{
+  "vendor": {
+    "id": 1
+  },
+  "name": "Central Pickup Point",
+  "address": "Strada Exemplu 10",
+  "city": "Bucharest",
+  "latitude": 44.4268,
+  "longitude": 26.1025
+}
+
+### GET ALL LOCATIONS
+GET {{baseUrl}}/locations
+
+### GET LOCATION BY ID
+GET {{baseUrl}}/locations/1
+
+### UPDATE LOCATION
+PUT {{baseUrl}}/locations/1
+Content-Type: application/json
+
+{
+  "vendor": {
+    "id": 1
+  },
+  "name": "Updated Pickup Point",
+  "address": "Strada Exemplu 20",
+  "city": "Bucharest",
+  "latitude": 44.4270,
+  "longitude": 26.1030
+}
+
+### DELETE LOCATION
+DELETE {{baseUrl}}/locations/1

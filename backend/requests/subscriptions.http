@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE SUBSCRIPTION
+POST {{baseUrl}}/subscriptions
+Content-Type: application/json
+
+{
+  "customer": {
+    "id": 1
+  },
+  "vendor": {
+    "id": 1
+  },
+  "notificationsEnabled": true
+}
+
+### GET ALL SUBSCRIPTIONS
+GET {{baseUrl}}/subscriptions
+
+### GET SUBSCRIPTION BY ID
+GET {{baseUrl}}/subscriptions/1
+
+### UPDATE SUBSCRIPTION
+PUT {{baseUrl}}/subscriptions/1
+Content-Type: application/json
+
+{
+  "customer": {
+    "id": 1
+  },
+  "vendor": {
+    "id": 1
+  },
+  "notificationsEnabled": false
+}
+
+### DELETE SUBSCRIPTION
+DELETE {{baseUrl}}/subscriptions/1

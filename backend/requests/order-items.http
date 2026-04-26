@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE ORDER ITEM
+POST {{baseUrl}}/order-items
+Content-Type: application/json
+
+{
+  "order": {
+    "id": 1
+  },
+  "weeklyOffer": {
+    "id": 1
+  },
+  "quantity": 2,
+  "priceAtOrder": 8.5
+}
+
+### GET ALL ORDER ITEMS
+GET {{baseUrl}}/order-items
+
+### GET ORDER ITEM BY ID
+GET {{baseUrl}}/order-items/1
+
+### UPDATE ORDER ITEM
+PUT {{baseUrl}}/order-items/1
+Content-Type: application/json
+
+{
+  "order": {
+    "id": 1
+  },
+  "weeklyOffer": {
+    "id": 1
+  },
+  "quantity": 3,
+  "priceAtOrder": 7.9
+}
+
+### DELETE ORDER ITEM
+DELETE {{baseUrl}}/order-items/1
