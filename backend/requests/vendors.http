@@ -1,0 +1,28 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE VENDOR
+POST {{baseUrl}}/vendors
+Content-Type: application/json
+
+{
+  "farmName": "Test Farm",
+  "description": "Local farm"
+}
+
+### GET ALL
+GET {{baseUrl}}/vendors
+
+### GET BY ID
+GET {{baseUrl}}/vendors/1
+
+### UPDATE
+PUT {{baseUrl}}/vendors/1
+Content-Type: application/json
+
+{
+  "farmName": "Updated Farm",
+  "description": "Updated description"
+}
+
+### DELETE
+DELETE {{baseUrl}}/vendors/1

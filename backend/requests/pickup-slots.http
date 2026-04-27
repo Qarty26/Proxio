@@ -1,0 +1,36 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE PICKUP SLOT
+POST {{baseUrl}}/pickup-slots
+Content-Type: application/json
+
+{
+  "location": {
+    "id": 1
+  },
+  "startTime": "2026-04-27T10:00:00",
+  "endTime": "2026-04-27T12:00:00",
+  "maxOrders": 10
+}
+
+### GET ALL PICKUP SLOTS
+GET {{baseUrl}}/pickup-slots
+
+### GET PICKUP SLOT BY ID
+GET {{baseUrl}}/pickup-slots/1
+
+### UPDATE PICKUP SLOT
+PUT {{baseUrl}}/pickup-slots/1
+Content-Type: application/json
+
+{
+  "location": {
+    "id": 1
+  },
+  "startTime": "2026-04-27T14:00:00",
+  "endTime": "2026-04-27T16:00:00",
+  "maxOrders": 15
+}
+
+### DELETE PICKUP SLOT
+DELETE {{baseUrl}}/pickup-slots/1

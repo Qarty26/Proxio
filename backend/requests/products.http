@@ -1,0 +1,28 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE PRODUCT
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "Apple",
+  "price": 10.5
+}
+
+### GET ALL
+GET {{baseUrl}}/products
+
+### GET BY ID
+GET {{baseUrl}}/products/1
+
+### UPDATE
+PUT {{baseUrl}}/products/1
+Content-Type: application/json
+
+{
+  "name": "Green Apple",
+  "price": 12.0
+}
+
+### DELETE
+DELETE {{baseUrl}}/products/1

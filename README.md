@@ -1,22 +1,63 @@
-## Data Model
+# Proxio
 
-### Core identity
-`User` is the base account for everyone. Depending on the role, a `User` has either
-a `Vendor` profile or a `Customer` profile attached via `@OneToOne`.
+## Description
 
-### Vendor side
-A `Vendor` owns multiple `Location`s (pickup points) and multiple `Product`s.
-Each `Product` at each `Location` has its own `Stock`, tracked independently.
-Every week, a `Vendor` publishes `WeeklyOffer`s — a product at a location, with price and available quantity.
-Each `Location` also defines `PickupSlot`s — time windows when customers can collect orders.
+Proxio is a Spring Boot backend that simulates a simple marketplace between vendors and customers. Vendors can create and manage products and offers, while customers can browse, place orders, and interact with the platform. The system models a real flow of buying and selling products in a structured way.
 
-### Customer side
-A `Customer` subscribes to `Vendor`s via `Subscription` (ManyToMany with attributes).
-When a weekly offer is active, a `Customer` places an `Order` linked to a location and optionally a pickup slot.
-An `Order` contains multiple `OrderItem`s — each referencing a `WeeklyOffer` with a quantity
-and a price snapshot (`priceAtOrder`).
+## Architecture
 
-### Ratings
-After an order is completed, either party can rate the other via `UserRating`.
-A rating links a `rater`, a `rated`, and the `order` that grants permission to review.
-All ratings start as `PENDING` and require admin approval before becoming visible.
+Layered structure:
+Controller → Service → Repository → Database
+
+- Entity: defines the main objects in the system (users, products, orders, etc.)
+- Repository: handles database interaction and basic CRUD operations
+- Service: contains the application logic and coordinates operations between entities
+- Controller: exposes REST endpoints for each entity
+- Exception: handles errors in a consistent way
+
+## Core Entities
+
+- User: base account used in the system (can act as customer or vendor)
+- Vendor: represents a seller that owns products and locations
+- Customer: represents a buyer that can place orders
+- Product: item sold by a vendor
+- Location: physical place where products are available or picked up
+- Stock: quantity of a product at a specific location
+- WeeklyOffer: temporary offer for a product with price and availability
+- PickupSlot: time interval when an order can be collected
+- Order: a purchase made by a customer
+- OrderItem: individual product entries inside an order
+- Subscription: link between customer and vendor (e.g. for updates)
+- UserRating: feedback between users after interactions
+
+## Flow
+
+A typical usage flow is:
+
+- a user is created
+- a vendor is created and linked to a user
+- a customer is created and linked to a user
+- the vendor defines locations
+- the vendor creates products
+- stock is assigned to products at locations
+- weekly offers are created for products
+- pickup slots are defined
+- a customer places an order
+- order items are added based on available offers
+- users can rate each other after interactions
+
+## Run
+
+```
+cd backend
+mvn spring-boot:run
+```
+
+Runs on [http://localhost:8080](http://localhost:8080)
+
+## Unit Tests
+
+```bash
+mvn test
+mvn test -Dtest="*ServiceTest"
+```

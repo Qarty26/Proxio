@@ -1,0 +1,28 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE CUSTOMER
+POST {{baseUrl}}/customers
+Content-Type: application/json
+
+{
+  "phone": "0712345678",
+  "address": "Bucharest"
+}
+
+### GET ALL
+GET {{baseUrl}}/customers
+
+### GET BY ID
+GET {{baseUrl}}/customers/1
+
+### UPDATE
+PUT {{baseUrl}}/customers/1
+Content-Type: application/json
+
+{
+  "phone": "0799999999",
+  "address": "Updated Address"
+}
+
+### DELETE
+DELETE {{baseUrl}}/customers/1

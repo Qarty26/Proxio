@@ -1,0 +1,26 @@
+@baseUrl = http://localhost:8080/api
+
+### CREATE ORDER
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "status": "PENDING"
+}
+
+### GET ALL
+GET {{baseUrl}}/orders
+
+### GET BY ID
+GET {{baseUrl}}/orders/1
+
+### UPDATE
+PUT {{baseUrl}}/orders/1
+Content-Type: application/json
+
+{
+  "status": "CONFIRMED"
+}
+
+### DELETE
+DELETE {{baseUrl}}/orders/1
