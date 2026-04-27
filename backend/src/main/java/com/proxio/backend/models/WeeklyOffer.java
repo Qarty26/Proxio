@@ -1,16 +1,22 @@
 package com.proxio.backend.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Table(name = "weekly_offers")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = {"product", "location", "orderItems"})
 public class WeeklyOffer {
 
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
