@@ -46,13 +46,23 @@ A typical usage flow is:
 - order items are added based on available offers
 - users can rate each other after interactions
 
-## Run
+
+## Run on Test
 
 ```
 cd backend
-docker compose up -d
-Before running the application, set up the environment variables with the .env file
+set macro variable in .env to "test"
 mvn spring-boot:run
+```
+
+
+## Run on Dev
+
+```
+cd backend
+set macro variable in .env to "dev"
+(optional -> only first time) docker compose up --build
+docker compose up -d
 ```
 
 Runs on [http://localhost:8080](http://localhost:8080)
