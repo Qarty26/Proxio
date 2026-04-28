@@ -50,6 +50,8 @@ A typical usage flow is:
 
 ```
 cd backend
+docker compose up -d
+Before running the application, set up the environment variables with the .env file
 mvn spring-boot:run
 ```
 
