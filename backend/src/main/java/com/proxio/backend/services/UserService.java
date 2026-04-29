@@ -6,6 +6,7 @@ import com.proxio.backend.exceptions.ResourceNotFoundException;
 import com.proxio.backend.exceptions.UpdateOperationException;
 import com.proxio.backend.models.User;
 import com.proxio.backend.repositories.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,14 +15,20 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User create(User user) {
         try {
+
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
             return userRepository.save(user);
+
         } catch (Exception exception) {
             throw new CreateOperationException("Could not create User.");
         }
