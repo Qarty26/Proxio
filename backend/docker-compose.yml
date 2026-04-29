@@ -32,5 +32,10 @@ services:
       db:
         condition: service_healthy
 
+    volumes:
+      - ./logs:/app/logs
+
 volumes:
   postgres_data:
+
+
