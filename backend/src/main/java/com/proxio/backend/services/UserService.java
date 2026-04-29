@@ -46,15 +46,20 @@ public class UserService {
     public User update(Long id, User user) {
         try {
             User existing = getById(id);
-        existing.setEmail(user.getEmail());
-        existing.setPassword(user.getPassword());
-        existing.setFullName(user.getFullName());
-        existing.setRole(user.getRole());
-        existing.setVendor(user.getVendor());
-        existing.setCustomer(user.getCustomer());
-        existing.setRatingsGiven(user.getRatingsGiven());
-        existing.setRatingsReceived(user.getRatingsReceived());
+
+            if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
+                existing.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+
+            existing.setEmail(user.getEmail());
+            existing.setFullName(user.getFullName());
+            existing.setRole(user.getRole());
+            existing.setVendor(user.getVendor());
+            existing.setCustomer(user.getCustomer());
+            existing.setRatingsGiven(user.getRatingsGiven());
+            existing.setRatingsReceived(user.getRatingsReceived());
             return userRepository.save(existing);
+
         } catch (ResourceNotFoundException exception) {
             throw exception;
         } catch (Exception exception) {

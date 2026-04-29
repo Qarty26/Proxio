@@ -36,32 +36,33 @@ public class SecurityConfig {
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class) // Adăugăm un filtru custom (vezi pasul 2)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/**").permitAll()
-                        .requestMatchers("/api/locations/**").hasRole("BANANA")
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/locations/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults());
+                .httpBasic(Customizer.withDefaults())
 
             //TODO: These can be uncommented once those enpoints and pages exist.
             // For now they get stuck in a loop since they do not exist
 
-//                .formLogin(form -> form
+                .formLogin(form -> form
 //                        .loginPage("/login")
-//                        .defaultSuccessUrl("/home", true)
-//                        .permitAll()
-//                )
+                        .defaultSuccessUrl("/api/users", true)
+                        .permitAll()
+                )
 //
-//                .logout(logout -> logout
-//                        .logoutUrl("/logout")
-//                        .logoutSuccessUrl("/login?logout")
-//                        .invalidateHttpSession(true)
-//                        .deleteCookies("JSESSIONID")
-//                        .permitAll()
-//                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID", "remember-key")
+                        .permitAll()
+                )
 //
-//                .rememberMe(remember -> remember
-//                        .key("remember-key")
-//                        .tokenValiditySeconds(7 * 86400)
-//                );
+                .rememberMe(remember -> remember
+                        .key("remember-key")
+                        .tokenValiditySeconds(7 * 86400)
+                );
 
         return http.build();
     }
