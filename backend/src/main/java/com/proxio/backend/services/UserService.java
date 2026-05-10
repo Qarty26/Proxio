@@ -6,11 +6,13 @@ import com.proxio.backend.exceptions.ResourceNotFoundException;
 import com.proxio.backend.exceptions.UpdateOperationException;
 import com.proxio.backend.models.User;
 import com.proxio.backend.repositories.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -35,6 +37,7 @@ public class UserService {
     }
 
     public List<User> getAll() {
+        log.error("Example of error for AOP / AspectJ");
         return userRepository.findAll();
     }
 
