@@ -51,4 +51,12 @@ public class SecurityUser implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public String getRole(){
+        return user.getRole().toString();
+    }
+
+    public String getEmail(){
+        return user.getEmail();
+    }
 }
