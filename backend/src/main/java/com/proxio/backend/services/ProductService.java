@@ -5,9 +5,12 @@ import com.proxio.backend.exceptions.DeleteOperationException;
 import com.proxio.backend.exceptions.ResourceNotFoundException;
 import com.proxio.backend.exceptions.UpdateOperationException;
 import com.proxio.backend.models.Product;
+import com.proxio.backend.models.enums.ProductCategory;
 import com.proxio.backend.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
-
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Service
@@ -23,10 +26,15 @@ public class ProductService {
         try {
             return productRepository.save(product);
         } catch (Exception exception) {
-            throw new CreateOperationException("Could not create Product.");
+            throw new CreateOperationException("Could not create Product." + exception.getMessage() );
         }
     }
-
+    public Page<Product> getAllPaged(Pageable pageable) {
+            return productRepository.findAll(pageable);
+    }
+    public Page<Product> getByCategoryPaged(ProductCategory category, Pageable pageable) {
+        return productRepository.findByCategory(category, pageable);
+    }
     public List<Product> getAll() {
         return productRepository.findAll();
     }

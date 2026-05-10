@@ -2,6 +2,7 @@ import { useState } from "react";
 import Login from "./Login";
 import Register from "./Register";
 import UserManagement from "./UserManagement";
+import Products from "./Products";
 
 // ── Unauthorized page ─────────────────────────────────────────────────────────
 function Unauthorized({ onLogout }) {
@@ -43,6 +44,7 @@ function loadUser() {
 function saveUser(user) {
   localStorage.setItem("proxio_user", JSON.stringify(user));
   localStorage.setItem("proxio_role", user.role);
+  localStorage.setItem("proxio_id", user.id);
 }
 
 function clearUser() {
@@ -84,11 +86,12 @@ export default function App() {
     );
   }
 
-  // Logged in but not admin → 403
-  if (user.role !== "ADMIN") {
-    return <Unauthorized onLogout={handleLogout} />;
-  }
-
-  // Admin → user management dashboard
-  return <UserManagement currentUser={user} onLogout={handleLogout} />;
+  return (
+    <div>
+      {!user ? (
+        <Login onLogin={handleLogin} onGoRegister={() => {}} />
+      ) : (
+        <Products user={user} onLogout={handleLogout} />
+      )}
+    </div>);
 }

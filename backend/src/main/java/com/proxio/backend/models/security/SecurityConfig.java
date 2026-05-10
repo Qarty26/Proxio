@@ -60,10 +60,11 @@ public class SecurityConfig {
                         SecurityUser userDetails = (SecurityUser) authentication.getPrincipal();
                         
                         String userJson = String.format(
-                        "{\"email\":\"%s\", \"username\":\"%s\", \"role\":\"%s\"}",
+                        "{\"email\":\"%s\", \"username\":\"%s\", \"role\":\"%s\",\"id\":\"%s\"}",
                         userDetails.getEmail(),
                         userDetails.getUsername(),
-                        userDetails.getRole());
+                        userDetails.getRole(),
+                        userDetails.getId());
                         
                         response.getWriter().write(userJson);
 
