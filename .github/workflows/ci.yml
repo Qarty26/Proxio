@@ -19,7 +19,7 @@ jobs:
           java-version: "21"
           cache: maven
       - name: Run backend tests
-        run: ./mvnw test
+        run: mvn test
 
   notification-service:
     runs-on: ubuntu-latest
