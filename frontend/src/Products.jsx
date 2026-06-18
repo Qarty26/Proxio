@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { apiUrl } from "./apiBase";
 
 const inputStyle = (hasError) => ({
   width: "100%", boxSizing: "border-box",
@@ -131,16 +132,82 @@ export default function Products({ user, onLogout }) {
     return colors[category] || "#888";
   };
 
+  const canManageProduct = (product) => {
+    const storedUser = loadUser();
+    if (!storedUser) return false;
+    if (storedUser.role === "ADMIN") return true;
+    return storedUser.role === "VENDOR" && currentVendor?.id && product.vendor?.id === currentVendor.id;
+  };
+
   // Fetch current vendor info
   const fetchCurrentVendor = async () => {
     try {
-      var user = loadUser();
-      
-      return user;
+      const storedUser = loadUser();
+      if (!storedUser || storedUser.role !== "VENDOR") {
+        setIsVendor(false);
+        return null;
+      }
+
+      const res = await fetch(apiUrl(`/api/vendors/by-user/${storedUser.id}`), {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (res.status === 404) {
+        const vendor = await createVendorProfile(storedUser);
+        setCurrentVendor(vendor);
+        setIsVendor(true);
+        return vendor;
+      }
+
+      if (!res.ok) throw new Error("Failed to fetch vendor");
+
+      const vendor = await res.json();
+      setCurrentVendor(vendor);
+      setIsVendor(true);
+      return vendor;
     } catch (err) {
       console.error("Failed to fetch vendor:", err);
       setIsVendor(false);
+      return null;
     }
+  };
+
+  const ensureCurrentVendor = async () => {
+    if (currentVendor) return currentVendor;
+
+    const vendor = await fetchCurrentVendor();
+    if (!vendor) {
+      throw new Error("Vendor profile is required before creating products");
+    }
+
+    return vendor;
+  };
+
+  const createVendorProfile = async (storedUser) => {
+    const token = getXsrfToken();
+    const profileName = storedUser.username || storedUser.email || "Vendor";
+
+    const res = await fetch(apiUrl("/api/vendors"), {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { "X-XSRF-TOKEN": token }),
+      },
+      body: JSON.stringify({
+        user: { id: storedUser.id },
+        farmName: `${profileName} Farm`,
+        description: "Local vendor profile",
+      }),
+    });
+
+    if (!res.ok) {
+      const errorData = await parseErrorResponse(res);
+      throw new Error(formatServerError(errorData, "Failed to create vendor profile"));
+    }
+
+    return res.json();
   };
 
   const fetchProducts = async () => {
@@ -148,7 +215,7 @@ export default function Products({ user, onLogout }) {
     setError("");
     
     try {
-      let url = `http://localhost:8080/api/products/paged?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`;
+      let url = apiUrl(`/api/products/paged?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`);
       if (categoryFilter) {
         url += `&category=${categoryFilter}`;
       }
@@ -158,8 +225,6 @@ export default function Products({ user, onLogout }) {
         credentials: "include",
       });
       
-console.log(res);
-
       if (res.status === 401) {
         onLogout();
         return;
@@ -223,16 +288,18 @@ console.log(res);
       const token = getXsrfToken();
       // Create product with current vendor ID
       
+      const vendor = await ensureCurrentVendor();
+
       const productToCreate = {
         name: formData.name,
         description: formData.description,
         unit: formData.unit,
         category: formData.category,
         imageUrl: formData.imageUrl,
-        vendor: loadUser().id 
+        vendor: { id: vendor.id }
       };
       
-      const res = await fetch("http://localhost:8080/api/products", {
+      const res = await fetch(apiUrl("/api/products"), {
         method: "POST",
         credentials: "include",
         headers: {
@@ -243,8 +310,8 @@ console.log(res);
       });
       
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to create product");
+        const errorData = await parseErrorResponse(res);
+        throw new Error(formatServerError(errorData, "Failed to create product"));
       }
       
       setIsCreateModalOpen(false);
@@ -267,6 +334,7 @@ console.log(res);
     setSubmitting(true);
     try {
       const token = getXsrfToken();
+      const vendor = await ensureCurrentVendor();
       
       const productToUpdate = {
         name: formData.name,
@@ -274,10 +342,10 @@ console.log(res);
         unit: formData.unit,
         category: formData.category,
         imageUrl: formData.imageUrl,
-        vendor: { id: currentVendor.id }  // Keep using current vendor's ID
+        vendor: { id: vendor.id }
       };
       
-      const res = await fetch(`http://localhost:8080/api/products/${selectedProduct.id}`, {
+      const res = await fetch(apiUrl(`/api/products/${selectedProduct.id}`), {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -288,8 +356,8 @@ console.log(res);
       });
       
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to update product");
+        const errorData = await parseErrorResponse(res);
+        throw new Error(formatServerError(errorData, "Failed to update product"));
       }
       
       setIsEditModalOpen(false);
@@ -307,7 +375,7 @@ console.log(res);
     
     try {
       const token = getXsrfToken();
-      const res = await fetch(`http://localhost:8080/api/products/${id}`, {
+      const res = await fetch(apiUrl(`/api/products/${id}`), {
         method: "DELETE",
         credentials: "include",
         headers: token ? { "X-XSRF-TOKEN": token } : {},
@@ -353,6 +421,25 @@ console.log(res);
     return cookie ? decodeURIComponent(cookie.split("=")[1]) : "";
   };
 
+  const formatServerError = (errorData, fallback) => {
+    if (!errorData) return fallback;
+    if (typeof errorData === "string") return errorData;
+    if (errorData.message) return errorData.message;
+    const messages = Object.values(errorData).filter(Boolean);
+    return messages.length ? messages.join("; ") : fallback;
+  };
+
+  const parseErrorResponse = async (res) => {
+    const text = await res.text();
+    if (!text) return null;
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
+  };
+
   return (
     <div style={{
       minHeight: "100vh", background: "#0a0a0a",
@@ -388,13 +475,13 @@ console.log(res);
             </h1>
             {currentVendor && (
               <div style={{ fontSize: 12, color: "#4caf50", marginTop: 8 }}>
-                ✓ Vendor: {currentVendor.name}
+                Vendor: {currentVendor.farmName}
               </div>
             )}
           </div>
           <div style={{ display: "flex", gap: 12 }}>
             {/* Only show New Product button for vendors */}
-            {loadUser().role == "VENDOR" && (
+            {loadUser()?.role === "VENDOR" && (
               <button onClick={() => setIsCreateModalOpen(true)} style={buttonStyle("primary")}>
                 + New Product
               </button>
@@ -509,14 +596,16 @@ console.log(res);
                       Unit: {product.unit}
                     </div>
                   )}
-                  <div style={{ display: "flex", gap: 12, borderTop: "1px solid #1e1e1e", paddingTop: 16 }}>
-                    <button onClick={() => openEditModal(product)} style={{ ...buttonStyle("secondary"), flex: 1, padding: "8px" }}>
-                      Edit
-                    </button>
-                    <button onClick={() => handleDelete(product.id)} style={{ ...buttonStyle("secondary"), flex: 1, padding: "8px", color: "#ff3b3b", borderColor: "#ff3b3b33" }}>
-                      Delete
-                    </button>
-                  </div>
+                  {canManageProduct(product) && (
+                    <div style={{ display: "flex", gap: 12, borderTop: "1px solid #1e1e1e", paddingTop: 16 }}>
+                      <button onClick={() => openEditModal(product)} style={{ ...buttonStyle("secondary"), flex: 1, padding: "8px" }}>
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(product.id)} style={{ ...buttonStyle("secondary"), flex: 1, padding: "8px", color: "#ff3b3b", borderColor: "#ff3b3b33" }}>
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

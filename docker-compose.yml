@@ -1,0 +1,185 @@
+services:
+  db:
+    image: postgres:15
+    container_name: proxio-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-proxio}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-proxio}
+      POSTGRES_DB: ${DB_NAME:-proxio}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-proxio} -d ${DB_NAME:-proxio}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    container_name: proxio-redis
+    ports:
+      - "6379:6379"
+
+  config-service:
+    build:
+      context: ./config-service
+    container_name: proxio-config
+    environment:
+      DISCOVERY_BASE_URL: http://discovery-service:8761
+      INSTANCE_ID: config-1
+      SERVICE_BASE_URL: http://config-service:8888
+    depends_on:
+      - discovery-service
+    ports:
+      - "8888:8888"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: proxio-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-proxio}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-proxio}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-proxio}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      INTERNAL_AUTH_ENABLED: "true"
+      INTERNAL_AUTH_SECRET: ${INTERNAL_AUTH_SECRET:-proxio-dev-internal-secret}
+      DISCOVERY_BASE_URL: http://discovery-service:8761
+      INSTANCE_ID: backend-1
+      SERVICE_BASE_URL: http://backend:8080
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      config-service:
+        condition: service_started
+      discovery-service:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/logs:/app/logs
+
+  backend-replica:
+    build:
+      context: ./backend
+    container_name: proxio-backend-replica
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-proxio}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-proxio}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-proxio}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      INTERNAL_AUTH_ENABLED: "true"
+      INTERNAL_AUTH_SECRET: ${INTERNAL_AUTH_SECRET:-proxio-dev-internal-secret}
+      DISCOVERY_BASE_URL: http://discovery-service:8761
+      INSTANCE_ID: backend-2
+      SERVICE_BASE_URL: http://backend-replica:8080
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      config-service:
+        condition: service_started
+      discovery-service:
+        condition: service_started
+    volumes:
+      - ./backend/logs:/app/logs
+
+  discovery-service:
+    build:
+      context: ./discovery-service
+    container_name: proxio-discovery
+    ports:
+      - "8761:8761"
+
+  notification-service:
+    build:
+      context: ./notification-service
+    container_name: proxio-notifications
+    environment:
+      DISCOVERY_BASE_URL: http://discovery-service:8761
+      INSTANCE_ID: notification-1
+      SERVICE_BASE_URL: http://notification-service:8082
+      INTERNAL_AUTH_ENABLED: "true"
+      INTERNAL_AUTH_SECRET: ${INTERNAL_AUTH_SECRET:-proxio-dev-internal-secret}
+    depends_on:
+      - config-service
+      - discovery-service
+    ports:
+      - "8082:8082"
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: proxio-api-gateway
+    environment:
+      BACKEND_BASE_URL: http://backend:8080
+      NOTIFICATION_BASE_URL: http://notification-service:8082
+      DISCOVERY_BASE_URL: http://discovery-service:8761
+      CONFIG_BASE_URL: http://config-service:8888
+      INTERNAL_AUTH_SECRET: ${INTERNAL_AUTH_SECRET:-proxio-dev-internal-secret}
+      GATEWAY_MAX_ATTEMPTS: 2
+      GATEWAY_REQUEST_TIMEOUT_MS: 2500
+    depends_on:
+      - config-service
+      - discovery-service
+      - backend
+      - backend-replica
+      - notification-service
+    ports:
+      - "8081:8081"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8081
+    container_name: proxio-frontend
+    depends_on:
+      - api-gateway
+    ports:
+      - "5173:80"
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: proxio-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - backend
+      - backend-replica
+      - config-service
+      - api-gateway
+      - discovery-service
+      - notification-service
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:11.1.4
+    container_name: proxio-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

@@ -1,0 +1,5 @@
+com\proxio\notificationservice\NotificationServiceApplication.class
+com\proxio\notificationservice\model\NotificationRequest.class
+com\proxio\notificationservice\security\InternalTokenFilter.class
+com\proxio\notificationservice\controller\NotificationController.class
+com\proxio\notificationservice\discovery\ServiceRegistrationClient.class

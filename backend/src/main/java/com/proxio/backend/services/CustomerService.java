@@ -6,6 +6,8 @@ import com.proxio.backend.exceptions.ResourceNotFoundException;
 import com.proxio.backend.exceptions.UpdateOperationException;
 import com.proxio.backend.models.Customer;
 import com.proxio.backend.repositories.CustomerRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +33,10 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
+    public Page<Customer> getAllPaged(Pageable pageable) {
+        return customerRepository.findAll(pageable);
+    }
+
     public Customer getById(Long id) {
         return customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id " + id + " was not found."));
@@ -39,11 +45,12 @@ public class CustomerService {
     public Customer update(Long id, Customer customer) {
         try {
             Customer existing = getById(id);
-        existing.setUser(customer.getUser());
-        existing.setPhone(customer.getPhone());
-        existing.setAddress(customer.getAddress());
-        existing.setSubscriptions(customer.getSubscriptions());
-        existing.setOrders(customer.getOrders());
+            existing.setUser(customer.getUser());
+            existing.setPhone(customer.getPhone());
+            existing.setAddress(customer.getAddress());
+            existing.setSubscriptions(customer.getSubscriptions());
+            existing.setOrders(customer.getOrders());
+            existing.setFavoriteVendors(customer.getFavoriteVendors());
             return customerRepository.save(existing);
         } catch (ResourceNotFoundException exception) {
             throw exception;

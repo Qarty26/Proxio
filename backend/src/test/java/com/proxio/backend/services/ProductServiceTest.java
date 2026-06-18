@@ -4,7 +4,11 @@ import com.proxio.backend.exceptions.CreateOperationException;
 import com.proxio.backend.exceptions.DeleteOperationException;
 import com.proxio.backend.exceptions.ResourceNotFoundException;
 import com.proxio.backend.models.Product;
+import com.proxio.backend.models.User;
+import com.proxio.backend.models.Vendor;
 import com.proxio.backend.repositories.ProductRepository;
+import com.proxio.backend.repositories.UserRepository;
+import com.proxio.backend.repositories.VendorRepository;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +28,15 @@ class ProductServiceTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private VendorRepository vendorRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private ProductCacheService productCacheService;
+
     @InjectMocks
     private ProductService productService;
 
@@ -31,7 +44,10 @@ class ProductServiceTest {
     void createReturnsSavedEntity() {
         Product entity = new Product();
         entity.setName("Old Product");
+        Vendor vendor = vendor(1L);
+        entity.setVendor(vendor);
 
+        when(vendorRepository.findById(1L)).thenReturn(Optional.of(vendor));
         when(productRepository.save(entity)).thenReturn(entity);
 
         Product result = productService.create(entity);
@@ -43,7 +59,10 @@ class ProductServiceTest {
     @Test
     void createWhenRepositoryThrowsExceptionThrowsCreateOperationException() {
         Product entity = new Product();
+        Vendor vendor = vendor(1L);
+        entity.setVendor(vendor);
 
+        when(vendorRepository.findById(1L)).thenReturn(Optional.of(vendor));
         when(productRepository.save(entity)).thenThrow(new RuntimeException());
 
         assertThrows(CreateOperationException.class, () -> productService.create(entity));
@@ -90,8 +109,11 @@ class ProductServiceTest {
 
         Product updated = new Product();
         updated.setName("New Product");
+        Vendor vendor = vendor(1L);
+        updated.setVendor(vendor);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(vendorRepository.findById(1L)).thenReturn(Optional.of(vendor));
         when(productRepository.save(existing)).thenReturn(existing);
 
         Product result = productService.update(1L, updated);
@@ -141,5 +163,11 @@ class ProductServiceTest {
         doThrow(new RuntimeException()).when(productRepository).delete(entity);
 
         assertThrows(DeleteOperationException.class, () -> productService.delete(1L));
+    }
+
+    private Vendor vendor(Long id) {
+        Vendor vendor = new Vendor();
+        vendor.setId(id);
+        return vendor;
     }
 }

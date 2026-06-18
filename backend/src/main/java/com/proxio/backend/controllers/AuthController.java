@@ -2,6 +2,7 @@ package com.proxio.backend.controllers;
 
 import com.proxio.backend.models.User;
 import com.proxio.backend.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
+    public ResponseEntity<User> register(@Valid @RequestBody User user) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.create(user));
     }    

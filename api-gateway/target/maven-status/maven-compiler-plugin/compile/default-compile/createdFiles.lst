@@ -1,0 +1,16 @@
+com\proxio\apigateway\controller\GatewayProxyController.class
+com\proxio\apigateway\config\GatewayConfig.class
+com\proxio\apigateway\config\ProxyProperties.class
+com\proxio\apigateway\discovery\TargetResolver.class
+com\proxio\apigateway\resilience\CircuitBreakerRegistry.class
+com\proxio\apigateway\discovery\ServiceInstance.class
+com\proxio\apigateway\config\CorsConfig$1.class
+com\proxio\apigateway\security\InternalTokenService.class
+com\proxio\apigateway\ApiGatewayApplication.class
+com\proxio\apigateway\config\CorsConfig.class
+com\proxio\apigateway\filter\RateLimitingFilter.class
+com\proxio\apigateway\controller\GatewayOpsController.class
+com\proxio\apigateway\filter\RateLimitingFilter$WindowCounter.class
+com\proxio\apigateway\discovery\DiscoveryClient.class
+com\proxio\apigateway\filter\CorrelationFilter.class
+com\proxio\apigateway\resilience\CircuitBreakerRegistry$CircuitState.class

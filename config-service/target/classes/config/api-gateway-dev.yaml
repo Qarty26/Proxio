@@ -1,0 +1,8 @@
+application: api-gateway
+profile: dev
+settings:
+  routing: centralized
+  discovery: discovery-service
+  loadBalancing: round-robin
+  resilience: retry, timeout, fallback
+  internalAuth: HMAC signed X-Internal-Token

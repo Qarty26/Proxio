@@ -1,0 +1,4 @@
+com\proxio\configservice\ConfigServiceApplication.class
+com\proxio\configservice\discovery\ServiceRegistrationClient.class
+com\proxio\configservice\service\ConfigCatalogService.class
+com\proxio\configservice\controller\ConfigController.class

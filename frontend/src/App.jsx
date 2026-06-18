@@ -50,6 +50,7 @@ function saveUser(user) {
 function clearUser() {
   localStorage.removeItem("proxio_user");
   localStorage.removeItem("proxio_role");
+  localStorage.removeItem("proxio_id");
 }
 
 // ── App ───────────────────────────────────────────────────────────────────────
@@ -88,8 +89,8 @@ export default function App() {
 
   return (
     <div>
-      {!user ? (
-        <Login onLogin={handleLogin} onGoRegister={() => {}} />
+      {user.role === "ADMIN" ? (
+        <UserManagement currentUser={user} onLogout={handleLogout} />
       ) : (
         <Products user={user} onLogout={handleLogout} />
       )}

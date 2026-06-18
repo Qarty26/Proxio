@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: notification-service
+
+server:
+  port: 8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+info:
+  app:
+    name: Notification Service
+    description: Lightweight microservice for demo notifications
+
+discovery:
+  base-url: ${DISCOVERY_BASE_URL:http://localhost:8761}
+  service-id: notification-service
+  instance-id: ${INSTANCE_ID:${HOSTNAME:notification-local}}
+  service-base-url: ${SERVICE_BASE_URL:http://localhost:8082}
+  heartbeat-ms: ${DISCOVERY_HEARTBEAT_MS:30000}
+
+proxio:
+  internal-auth:
+    enabled: ${INTERNAL_AUTH_ENABLED:false}
+    secret: ${INTERNAL_AUTH_SECRET:proxio-dev-internal-secret}

@@ -1,0 +1,7 @@
+application: backend
+profile: dev
+settings:
+  database: postgresql
+  cache: redis
+  actuator: health,info,metrics,prometheus
+  internalAuth: enabled in docker-compose

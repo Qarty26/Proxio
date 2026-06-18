@@ -2,6 +2,8 @@ package com.proxio.backend.models.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,14 +28,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, InternalTokenFilter internalTokenFilter) throws Exception {
 
         http
                 .cors(Customizer.withDefaults())
 
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers(
-                                "/api/users/**",
                                 "/api/auth/**"
                         )
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -41,10 +42,20 @@ public class SecurityConfig {
                 )
 
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(internalTokenFilter, BasicAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/products/**").hasAnyRole("VENDOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyRole("VENDOR", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAnyRole("VENDOR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/vendors/**").hasAnyRole("VENDOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/vendors/**").hasAnyRole("VENDOR", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/vendors/**").hasRole("ADMIN")
+                        .requestMatchers("/api/customers/**").hasRole("ADMIN")
                         .requestMatchers("/api/locations/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -94,6 +105,13 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public InternalTokenFilter internalTokenFilter(
+            @Value("${proxio.internal-auth.enabled:false}") boolean enabled,
+            @Value("${proxio.internal-auth.secret:proxio-dev-internal-secret}") String secret) {
+        return new InternalTokenFilter(enabled, secret);
     }
 
     @Bean

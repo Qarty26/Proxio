@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "./apiBase";
 
 const inputStyle = (hasError) => ({
   width: "100%", boxSizing: "border-box",
@@ -69,7 +70,7 @@ export default function Login({ onLogin, onGoRegister }) {
   try {
 
     // Trigger Spring Security to generate XSRF-TOKEN cookie
-    await fetch("http://localhost:8080/api/auth/csrf", {
+    await fetch(apiUrl("/api/auth/csrf"), {
       method: "GET",
       credentials: "include",
     });
@@ -96,7 +97,7 @@ export default function Login({ onLogin, onGoRegister }) {
 
     console.log(headers);
     
-    const res = await fetch("http://localhost:8080/api/auth/login", {
+    const res = await fetch(apiUrl("/api/auth/login"), {
       method: "POST",
 
       credentials: "include",

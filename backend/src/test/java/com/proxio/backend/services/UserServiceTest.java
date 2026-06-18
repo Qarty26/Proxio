@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,9 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UserService userService;
 
@@ -32,19 +36,25 @@ class UserServiceTest {
     void createReturnsSavedEntity() {
         User entity = new User();
         entity.setEmail("old@mail.com");
+        entity.setPassword("secret123");
 
+        when(passwordEncoder.encode("secret123")).thenReturn("encoded-secret");
         when(userRepository.save(entity)).thenReturn(entity);
 
         User result = userService.create(entity);
 
         assertSame(entity, result);
+        assertEquals("encoded-secret", result.getPassword());
+        verify(passwordEncoder, times(1)).encode("secret123");
         verify(userRepository, times(1)).save(entity);
     }
 
     @Test
     void createWhenRepositoryThrowsExceptionThrowsCreateOperationException() {
         User entity = new User();
+        entity.setPassword("secret123");
 
+        when(passwordEncoder.encode("secret123")).thenReturn("encoded-secret");
         when(userRepository.save(entity)).thenThrow(new RuntimeException());
 
         assertThrows(CreateOperationException.class, () -> userService.create(entity));

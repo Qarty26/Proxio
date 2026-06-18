@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
+import { apiUrl } from "./apiBase";
 
-const API_BASE = "http://localhost:8080/api/users";
+const API_BASE = apiUrl("/api/users");
 const ROLES = ["ADMIN", "VENDOR", "CUSTOMER"];
 const initialForm = { email: "", password: "", fullName: "", role: "" };
 
@@ -228,7 +229,7 @@ export default function UserManagement({ currentUser, onLogout }) {
   const load = useCallback(async () => {
     setStatus("loading");
     try {
-      const res = await fetch(API_BASE);
+      const res = await fetch(API_BASE, { credentials: "include" });
       if (res.status === 500) { setErrorCode(500); setStatus("error"); return; }
       if (!res.ok) { setErrorCode(res.status); setStatus("error"); return; }
       setUsers(await res.json());
@@ -254,6 +255,7 @@ export default function UserManagement({ currentUser, onLogout }) {
       const res = await fetch(API_BASE, {
         method: "POST", headers: headers,
         body: JSON.stringify(form),
+        credentials: "include",
       });
       if (!res.ok) { const err = await res.json().catch(() => ({})); toast(err.message || "Could not create user.", "error"); return; }
       const created = await res.json();
@@ -279,6 +281,7 @@ export default function UserManagement({ currentUser, onLogout }) {
       const res = await fetch(`${API_BASE}/${modal.user.id}`, {
         method: "PUT", headers: headers,
         body: JSON.stringify(form),
+        credentials: "include",
       });
       if (res.status === 404) { toast("User not found.", "error"); setModal(null); load(); return; }
       if (!res.ok) { const err = await res.json().catch(() => ({})); toast(err.message || "Could not update user.", "error"); return; }
@@ -301,7 +304,7 @@ export default function UserManagement({ currentUser, onLogout }) {
 
       if (xsrfToken) 
         headers["X-XSRF-TOKEN"] = xsrfToken;
-      const res = await fetch(`${API_BASE}/${modal.user.id}`, { method: "DELETE", headers: headers });
+      const res = await fetch(`${API_BASE}/${modal.user.id}`, { method: "DELETE", headers: headers, credentials: "include" });
       if (res.status === 404) { toast("User not found.", "error"); setModal(null); load(); return; }
       if (!res.ok) { toast("Could not delete user.", "error"); return; }
       setUsers(p => p.filter(u => u.id !== modal.user.id));

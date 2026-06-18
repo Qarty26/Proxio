@@ -1,0 +1,4 @@
+DB_USER=admin
+DB_PASSWORD=ciscosecpa55
+DB_NAME=proxio
+SPRING_PROFILES_ACTIVE=test

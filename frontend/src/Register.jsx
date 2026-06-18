@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "./apiBase";
 
 const ROLES = ["ADMIN", "VENDOR", "CUSTOMER"];
 
@@ -84,7 +85,7 @@ export default function Register({ onRegistered, onGoLogin }) {
       
       console.log(headers);
 
-      const res = await fetch("http://localhost:8080/api/users", {
+      const res = await fetch(apiUrl("/api/auth/register"), {
         method: "POST",
         headers: headers,
         body: JSON.stringify(form),
