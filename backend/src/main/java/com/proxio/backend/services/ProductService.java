@@ -64,13 +64,27 @@ public class ProductService {
         }
     }
 
-    public Page<Product> getAllPaged(Pageable pageable) {
-            return productRepository.findAll(pageable);
+    public Page<Product> getAllPaged(Pageable pageable, Authentication authentication) {
+        Long vendorId = resolveVendorIdFilter(authentication);
+        if (vendorId != null) {
+            return productRepository.findByVendorId(vendorId, pageable);
+        }
+        return productRepository.findAll(pageable);
     }
-    public Page<Product> getByCategoryPaged(ProductCategory category, Pageable pageable) {
+
+    public Page<Product> getByCategoryPaged(ProductCategory category, Pageable pageable, Authentication authentication) {
+        Long vendorId = resolveVendorIdFilter(authentication);
+        if (vendorId != null) {
+            return productRepository.findByVendorIdAndCategory(vendorId, category, pageable);
+        }
         return productRepository.findByCategory(category, pageable);
     }
-    public List<Product> getAll() {
+
+    public List<Product> getAll(Authentication authentication) {
+        Long vendorId = resolveVendorIdFilter(authentication);
+        if (vendorId != null) {
+            return productRepository.findByVendorId(vendorId);
+        }
         return productRepository.findAll();
     }
 
@@ -189,5 +203,21 @@ public class ProductService {
         User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new AccessDeniedException("Authenticated user was not found."));
         return user.getId();
+    }
+
+    // Returns the vendor ID to filter by for the current user, or null for admins (no filter).
+    private Long resolveVendorIdFilter(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        boolean isVendor = authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_VENDOR".equals(a.getAuthority()));
+        if (!isVendor) {
+            return null;
+        }
+        Long userId = resolveAuthenticatedUserId(authentication);
+        return vendorRepository.findByUserId(userId)
+                .map(Vendor::getId)
+                .orElse(null);
     }
 }

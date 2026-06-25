@@ -75,7 +75,7 @@ class ProductServiceTest {
 
         when(productRepository.findAll()).thenReturn(List.of(first, second));
 
-        List<Product> result = productService.getAll();
+        List<Product> result = productService.getAll(null);
 
         assertEquals(2, result.size());
         verify(productRepository, times(1)).findAll();

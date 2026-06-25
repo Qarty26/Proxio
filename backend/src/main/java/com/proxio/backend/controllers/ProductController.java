@@ -39,24 +39,25 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir,
-            @RequestParam(required = false) ProductCategory category
+            @RequestParam(required = false) ProductCategory category,
+            Authentication authentication
     ) {
         Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        
+
         Page<Product> productPage;
         if (category != null) {
-            productPage = productService.getByCategoryPaged(category, pageable);
+            productPage = productService.getByCategoryPaged(category, pageable, authentication);
         } else {
-            productPage = productService.getAllPaged(pageable);
+            productPage = productService.getAllPaged(pageable, authentication);
         }
-        
+
         return ResponseEntity.ok(productPage);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<java.util.List<Product>> getAll() {
-        return ResponseEntity.ok(productService.getAll());
+    public ResponseEntity<java.util.List<Product>> getAll(Authentication authentication) {
+        return ResponseEntity.ok(productService.getAll(authentication));
     }
 
     // WILDCARD endpoint LAST
