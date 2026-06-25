@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Proxio Signup</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-panel">
+    <h1>Create Account</h1>
+    <p class="muted">Create a shopper account or register as a vendor.</p>
+
+    <form th:action="@{/signup}" th:object="${signupForm}" method="post" class="stack">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <label>
+            Full name
+            <input th:field="*{fullName}" type="text" autocomplete="name" required minlength="2">
+            <span class="field-error" th:errors="*{fullName}"></span>
+        </label>
+        <label>
+            Email
+            <input th:field="*{email}" type="email" autocomplete="email" required>
+            <span class="field-error" th:errors="*{email}"></span>
+        </label>
+        <label>
+            Password
+            <input th:field="*{password}" type="password" autocomplete="new-password" required minlength="6">
+            <span class="field-error" th:errors="*{password}"></span>
+        </label>
+        <label>
+            Account type
+            <select th:field="*{accountType}" required>
+                <option value="CUSTOMER">Shopper</option>
+                <option value="VENDOR">Vendor</option>
+            </select>
+            <span class="field-error" th:errors="*{accountType}"></span>
+        </label>
+        <label>
+            Farm name
+            <input th:field="*{farmName}" type="text" placeholder="Required only for vendors">
+            <span class="field-error" th:errors="*{farmName}"></span>
+        </label>
+        <button type="submit">Sign up</button>
+    </form>
+
+    <p class="muted">Already have an account? <a th:href="@{/login}">Log in</a>.</p>
+</main>
+</body>
+</html>

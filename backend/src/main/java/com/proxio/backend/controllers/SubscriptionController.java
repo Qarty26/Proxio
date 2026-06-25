@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class SubscriptionController {
     }
 
     @PostMapping
-    public ResponseEntity<Subscription> create(@RequestBody Subscription subscription) {
+    public ResponseEntity<Subscription> create(@Valid @RequestBody Subscription subscription) {
         return ResponseEntity.status(HttpStatus.CREATED).body(subscriptionService.create(subscription));
     }
 
@@ -41,7 +42,7 @@ public class SubscriptionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Subscription> update(@PathVariable Long id, @RequestBody Subscription subscription) {
+    public ResponseEntity<Subscription> update(@PathVariable Long id, @Valid @RequestBody Subscription subscription) {
         return ResponseEntity.ok(subscriptionService.update(id, subscription));
     }
 

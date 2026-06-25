@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,9 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UserService userService;
 
@@ -32,22 +36,42 @@ class UserServiceTest {
     void createReturnsSavedEntity() {
         User entity = new User();
         entity.setEmail("old@mail.com");
+        entity.setPassword("secret");
 
+        when(userRepository.existsByEmail("old@mail.com")).thenReturn(false);
+        when(passwordEncoder.encode("secret")).thenReturn("encoded-secret");
         when(userRepository.save(entity)).thenReturn(entity);
 
         User result = userService.create(entity);
 
         assertSame(entity, result);
+        assertEquals("encoded-secret", result.getPassword());
         verify(userRepository, times(1)).save(entity);
     }
 
     @Test
     void createWhenRepositoryThrowsExceptionThrowsCreateOperationException() {
         User entity = new User();
+        entity.setEmail("old@mail.com");
+        entity.setPassword("secret");
 
+        when(userRepository.existsByEmail("old@mail.com")).thenReturn(false);
+        when(passwordEncoder.encode("secret")).thenReturn("encoded-secret");
         when(userRepository.save(entity)).thenThrow(new RuntimeException());
 
         assertThrows(CreateOperationException.class, () -> userService.create(entity));
+    }
+
+    @Test
+    void createWhenEmailAlreadyExistsThrowsCreateOperationException() {
+        User entity = new User();
+        entity.setEmail("old@mail.com");
+        entity.setPassword("secret");
+
+        when(userRepository.existsByEmail("old@mail.com")).thenReturn(true);
+
+        assertThrows(CreateOperationException.class, () -> userService.create(entity));
+        verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -91,13 +115,16 @@ class UserServiceTest {
 
         User updated = new User();
         updated.setEmail("new@mail.com");
+        updated.setPassword("new-secret");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(passwordEncoder.encode("new-secret")).thenReturn("encoded-new-secret");
         when(userRepository.save(existing)).thenReturn(existing);
 
         User result = userService.update(1L, updated);
 
         assertEquals("new@mail.com", result.getEmail());
+        assertEquals("encoded-new-secret", result.getPassword());
         verify(userRepository, times(1)).findById(1L);
         verify(userRepository, times(1)).save(existing);
     }

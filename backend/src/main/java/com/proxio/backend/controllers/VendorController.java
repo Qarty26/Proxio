@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class VendorController {
     }
 
     @PostMapping
-    public ResponseEntity<Vendor> create(@RequestBody Vendor vendor) {
+    public ResponseEntity<Vendor> create(@Valid @RequestBody Vendor vendor) {
         return ResponseEntity.status(HttpStatus.CREATED).body(vendorService.create(vendor));
     }
 
@@ -41,7 +42,7 @@ public class VendorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Vendor> update(@PathVariable Long id, @RequestBody Vendor vendor) {
+    public ResponseEntity<Vendor> update(@PathVariable Long id, @Valid @RequestBody Vendor vendor) {
         return ResponseEntity.ok(vendorService.update(id, vendor));
     }
 

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class LocationController {
     }
 
     @PostMapping
-    public ResponseEntity<Location> create(@RequestBody Location location) {
+    public ResponseEntity<Location> create(@Valid @RequestBody Location location) {
         return ResponseEntity.status(HttpStatus.CREATED).body(locationService.create(location));
     }
 
@@ -41,7 +42,7 @@ public class LocationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Location> update(@PathVariable Long id, @RequestBody Location location) {
+    public ResponseEntity<Location> update(@PathVariable Long id, @Valid @RequestBody Location location) {
         return ResponseEntity.ok(locationService.update(id, location));
     }
 

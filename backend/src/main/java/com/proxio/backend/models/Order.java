@@ -3,6 +3,7 @@ package com.proxio.backend.models;
 
 import com.proxio.backend.models.enums.OrderStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -23,10 +24,12 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Customer is required.")
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+    @NotNull(message = "Location is required.")
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
@@ -35,6 +38,7 @@ public class Order {
     @JoinColumn(name = "pickup_slot_id")
     private PickupSlot pickupSlot;
 
+    @NotNull(message = "Order status is required.")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status;

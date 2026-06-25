@@ -6,13 +6,11 @@ import com.proxio.backend.exceptions.ResourceNotFoundException;
 import com.proxio.backend.exceptions.UpdateOperationException;
 import com.proxio.backend.models.User;
 import com.proxio.backend.repositories.UserRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Slf4j
 @Service
 public class UserService {
 
@@ -26,18 +24,22 @@ public class UserService {
 
     public User create(User user) {
         try {
+            if (userRepository.existsByEmail(user.getEmail())) {
+                throw new CreateOperationException("An account with this email already exists.");
+            }
 
             String encodedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(encodedPassword);
             return userRepository.save(user);
 
+        } catch (CreateOperationException exception) {
+            throw exception;
         } catch (Exception exception) {
             throw new CreateOperationException("Could not create User.");
         }
     }
 
     public List<User> getAll() {
-        log.error("Example of error for AOP / AspectJ");
         return userRepository.findAll();
     }
 

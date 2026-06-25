@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Order ' + ${offer.product.name}">Order</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="topbar">
+    <a class="brand" th:href="@{/market}">Proxio Market</a>
+    <nav class="nav-actions">
+        <a th:href="@{/market}">Offers</a>
+        <a th:if="${isCustomer}" th:href="@{/orders}">My orders</a>
+        <a th:if="${isCustomer}" th:href="@{/subscriptions}">Subscriptions</a>
+        <a th:if="${isVendor}" th:href="@{/vendor}">Vendor dashboard</a>
+        <a th:if="${isAdmin}" th:href="@{/ui/users}">Admin</a>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button class="ghost" type="submit">Logout</button>
+        </form>
+    </nav>
+</header>
+
+<main class="market-shell narrow-market">
+    <a class="back-link" th:href="@{/market}">Back to offers</a>
+
+    <section class="checkout-layout">
+        <article class="offer-card detail-card">
+            <img class="detail-image"
+                 th:if="${offer.product.imageUrl != null}"
+                 th:src="${offer.product.imageUrl}"
+                 th:alt="${offer.product.name}">
+            <p class="eyebrow" th:text="${offer.product.category}">Category</p>
+            <h1 th:text="${offer.product.name}">Product</h1>
+            <p class="muted" th:text="${offer.product.description}">Description</p>
+            <dl class="offer-meta">
+                <div>
+                    <dt>Vendor</dt>
+                    <dd th:text="${offer.product.vendor.farmName}"></dd>
+                </div>
+                <div>
+                    <dt>Price</dt>
+                    <dd th:text="${#numbers.formatDecimal(offer.pricePerUnit, 1, 2)} + ' / ' + ${offer.product.unit}"></dd>
+                </div>
+                <div>
+                    <dt>Available</dt>
+                    <dd th:text="${#numbers.formatDecimal(offer.availableQuantity, 1, 2)} + ' ' + ${offer.product.unit}"></dd>
+                </div>
+                <div>
+                    <dt>Location</dt>
+                    <dd th:text="${offer.location.name} + ', ' + ${offer.location.city}"></dd>
+                </div>
+            </dl>
+        </article>
+
+        <form class="auth-panel checkout-panel"
+              th:if="${isCustomer}"
+              th:action="@{'/offers/' + ${offer.id} + '/order'}"
+              th:object="${checkoutForm}"
+              method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <h2>Place order</h2>
+            <p class="error" th:if="${orderError}" th:text="${orderError}"></p>
+            <label>
+                Quantity
+                <input th:field="*{quantity}" type="number" min="0.01" step="0.01" required>
+                <span class="field-error" th:errors="*{quantity}"></span>
+            </label>
+            <label>
+                Pickup slot
+                <select th:field="*{pickupSlotId}">
+                    <option value="">No slot selected</option>
+                    <option th:each="slot : ${pickupSlots}"
+                            th:value="${slot.id}"
+                            th:text="${#temporals.format(slot.startTime, 'dd MMM HH:mm')} + ' - ' + ${#temporals.format(slot.endTime, 'HH:mm')}"></option>
+                </select>
+            </label>
+            <button type="submit">Confirm order</button>
+        </form>
+
+        <article class="auth-panel checkout-panel" th:if="${!isCustomer}">
+            <h2>Customer checkout</h2>
+            <p class="muted">Vendor accounts can browse the market, but orders are placed from shopper accounts.</p>
+            <a class="button" th:if="${isVendor}" th:href="@{/vendor}">Back to dashboard</a>
+            <a class="button" th:if="${!isVendor}" th:href="@{/market}">Back to market</a>
+        </article>
+    </section>
+</main>
+</body>
+</html>

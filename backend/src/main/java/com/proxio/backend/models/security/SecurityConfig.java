@@ -2,6 +2,7 @@ package com.proxio.backend.models.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,9 +25,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
 
-
-//                TODO: fill permissions once backend is complete.
-//                 Here are just some examples that should be redone correctly
         http
                 .csrf(csrf -> csrf
 
@@ -35,22 +33,38 @@ public class SecurityConfig {
                 )
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/", "/login", "/signup", "/css/**", "/images/**", "/uploads/**", "/error/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/locations/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/weekly-offers/**", "/api/locations/**").authenticated()
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/**").hasAnyRole("USER", "CUSTOMER", "VENDOR", "ADMIN")
+                        .requestMatchers("/ui/**").hasRole("ADMIN")
+                        .requestMatchers("/market/**", "/offers/**", "/orders/**").hasAnyRole("USER", "CUSTOMER", "VENDOR", "ADMIN")
+                        .requestMatchers("/subscriptions/**").hasAnyRole("USER", "CUSTOMER", "ADMIN")
+                        .requestMatchers("/vendors/*/subscribe", "/vendors/*/unsubscribe").hasAnyRole("USER", "CUSTOMER", "ADMIN")
+                        .requestMatchers("/vendor/**").hasAnyRole("VENDOR", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
 
-            //TODO: These can be uncommented once those enpoints and pages exist.
-            // For now they get stuck in a loop since they do not exist
-
                 .formLogin(form -> form
-//                        .loginPage("/login")
-                        .defaultSuccessUrl("/api/users", true)
+                        .loginPage("/login")
+                        .successHandler((request, response, authentication) -> {
+                            boolean admin = authentication.getAuthorities().stream()
+                                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+                            boolean vendor = authentication.getAuthorities().stream()
+                                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_VENDOR"));
+                            if (admin) {
+                                response.sendRedirect("/ui/users");
+                            } else if (vendor) {
+                                response.sendRedirect("/vendor");
+                            } else {
+                                response.sendRedirect("/market");
+                            }
+                        })
                         .permitAll()
                 )
-//
+
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
