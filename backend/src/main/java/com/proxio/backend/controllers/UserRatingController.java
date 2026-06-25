@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class UserRatingController {
     }
 
     @PostMapping
-    public ResponseEntity<UserRating> create(@Valid @RequestBody UserRating userRating) {
+    public ResponseEntity<UserRating> create(@RequestBody UserRating userRating) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userRatingService.create(userRating));
     }
 
@@ -42,7 +41,7 @@ public class UserRatingController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserRating> update(@PathVariable Long id, @Valid @RequestBody UserRating userRating) {
+    public ResponseEntity<UserRating> update(@PathVariable Long id, @RequestBody UserRating userRating) {
         return ResponseEntity.ok(userRatingService.update(id, userRating));
     }
 

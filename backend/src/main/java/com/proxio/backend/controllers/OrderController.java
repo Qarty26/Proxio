@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> create(@Valid @RequestBody Order order) {
+    public ResponseEntity<Order> create(@RequestBody Order order) {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.create(order));
     }
 
@@ -42,7 +41,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Order> update(@PathVariable Long id, @Valid @RequestBody Order order) {
+    public ResponseEntity<Order> update(@PathVariable Long id, @RequestBody Order order) {
         return ResponseEntity.ok(orderService.update(id, order));
     }
 

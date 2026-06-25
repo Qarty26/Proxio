@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class PickupSlotController {
     }
 
     @PostMapping
-    public ResponseEntity<PickupSlot> create(@Valid @RequestBody PickupSlot pickupSlot) {
+    public ResponseEntity<PickupSlot> create(@RequestBody PickupSlot pickupSlot) {
         return ResponseEntity.status(HttpStatus.CREATED).body(pickupSlotService.create(pickupSlot));
     }
 
@@ -42,7 +41,7 @@ public class PickupSlotController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PickupSlot> update(@PathVariable Long id, @Valid @RequestBody PickupSlot pickupSlot) {
+    public ResponseEntity<PickupSlot> update(@PathVariable Long id, @RequestBody PickupSlot pickupSlot) {
         return ResponseEntity.ok(pickupSlotService.update(id, pickupSlot));
     }
 

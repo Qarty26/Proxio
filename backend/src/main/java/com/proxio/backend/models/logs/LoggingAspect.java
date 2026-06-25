@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class LoggingAspect {
 
-    @Pointcut("execution(* com.proxio.backend.services.*.*(..))")
+    @Pointcut("execution(* com.proxio.backend.service.*.*(..))")
     public void serviceMethods() {}
 
     @Before("serviceMethods()")

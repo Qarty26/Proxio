@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class StockController {
     }
 
     @PostMapping
-    public ResponseEntity<Stock> create(@Valid @RequestBody Stock stock) {
+    public ResponseEntity<Stock> create(@RequestBody Stock stock) {
         return ResponseEntity.status(HttpStatus.CREATED).body(stockService.create(stock));
     }
 
@@ -42,7 +41,7 @@ public class StockController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Stock> update(@PathVariable Long id, @Valid @RequestBody Stock stock) {
+    public ResponseEntity<Stock> update(@PathVariable Long id, @RequestBody Stock stock) {
         return ResponseEntity.ok(stockService.update(id, stock));
     }
 

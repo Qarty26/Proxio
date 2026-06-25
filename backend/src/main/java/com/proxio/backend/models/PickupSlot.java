@@ -1,8 +1,6 @@
 package com.proxio.backend.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,19 +19,15 @@ public class PickupSlot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Location is required.")
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
-    @NotNull(message = "Start time is required.")
     @Column(nullable = false)
     private LocalDateTime startTime;
 
-    @NotNull(message = "End time is required.")
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @Positive(message = "Maximum orders must be positive.")
     private Integer maxOrders;
 }
