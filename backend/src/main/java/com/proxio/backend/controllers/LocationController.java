@@ -4,6 +4,7 @@ import com.proxio.backend.models.Location;
 import com.proxio.backend.services.LocationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,13 +27,13 @@ public class LocationController {
     }
 
     @PostMapping
-    public ResponseEntity<Location> create(@RequestBody Location location) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(locationService.create(location));
+    public ResponseEntity<Location> create(@RequestBody Location location, Authentication authentication) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(locationService.create(location, authentication));
     }
 
     @GetMapping
-    public ResponseEntity<List<Location>> getAll() {
-        return ResponseEntity.ok(locationService.getAll());
+    public ResponseEntity<List<Location>> getAll(Authentication authentication) {
+        return ResponseEntity.ok(locationService.getAll(authentication));
     }
 
     @GetMapping("/{id}")
@@ -41,13 +42,13 @@ public class LocationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Location> update(@PathVariable Long id, @RequestBody Location location) {
-        return ResponseEntity.ok(locationService.update(id, location));
+    public ResponseEntity<Location> update(@PathVariable Long id, @RequestBody Location location, Authentication authentication) {
+        return ResponseEntity.ok(locationService.update(id, location, authentication));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        locationService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id, Authentication authentication) {
+        locationService.delete(id, authentication);
         return ResponseEntity.noContent().build();
     }
 }

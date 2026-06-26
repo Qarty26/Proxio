@@ -1,5 +1,6 @@
 package com.proxio.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -21,10 +22,12 @@ public class Stock {
 
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
+    @JsonIgnoreProperties({"stocks", "pickupSlots", "orders", "weeklyOffers"})
     private Location location;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnoreProperties({"stocks", "weeklyOffers"})
     private Product product;
 
     @Column(nullable = false)
