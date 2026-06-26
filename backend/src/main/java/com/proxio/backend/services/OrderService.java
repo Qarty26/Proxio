@@ -6,6 +6,7 @@ import com.proxio.backend.exceptions.ResourceNotFoundException;
 import com.proxio.backend.exceptions.UpdateOperationException;
 import com.proxio.backend.models.*;
 import com.proxio.backend.models.enums.OrderStatus;
+import com.proxio.backend.models.enums.RatingStatus;
 import com.proxio.backend.models.security.SecurityUser;
 import com.proxio.backend.repositories.*;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,17 +24,20 @@ public class OrderService {
     private final StockRepository stockRepository;
     private final VendorRepository vendorRepository;
     private final UserRepository userRepository;
+    private final UserRatingRepository userRatingRepository;
 
     public OrderService(OrderRepository orderRepository,
                         CustomerService customerService,
                         StockRepository stockRepository,
                         VendorRepository vendorRepository,
-                        UserRepository userRepository) {
+                        UserRepository userRepository,
+                        UserRatingRepository userRatingRepository) {
         this.orderRepository = orderRepository;
         this.customerService = customerService;
         this.stockRepository = stockRepository;
         this.vendorRepository = vendorRepository;
         this.userRepository = userRepository;
+        this.userRatingRepository = userRatingRepository;
     }
 
     // ── Existing generic CRUD (kept for backward compatibility) ──────────────
@@ -155,6 +159,86 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    // ── Mark as delivered ────────────────────────────────────────────────────
+
+    public Order markDelivered(Long orderId, Authentication authentication) {
+        Order order = getById(orderId);
+
+        assertIsVendorOfOrder(order, authentication);
+
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot deliver a cancelled order.");
+        }
+        if (order.getStatus() == OrderStatus.PICKED_UP) {
+            throw new IllegalStateException("Order is already marked as delivered.");
+        }
+
+        order.setStatus(OrderStatus.PICKED_UP);
+        return orderRepository.save(order);
+    }
+
+    // ── Rate order ───────────────────────────────────────────────────────────
+
+    @Transactional
+    public UserRating rateOrder(Long orderId, RateOrderRequest request, Authentication authentication) {
+        if (request.score() < 1 || request.score() > 5) {
+            throw new IllegalArgumentException("Score must be between 1 and 5.");
+        }
+
+        Order order = getById(orderId);
+
+        if (order.getStatus() != OrderStatus.PICKED_UP) {
+            throw new IllegalStateException("You can only rate a delivered order.");
+        }
+
+        Long userId = resolveUserId(authentication);
+        User rater = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
+        if (userRatingRepository.existsByOrderIdAndRaterId(orderId, userId)) {
+            throw new IllegalStateException("You have already rated this order.");
+        }
+
+        // Determine who is being rated
+        User rated;
+        boolean isCustomer = order.getCustomer() != null
+                && order.getCustomer().getUser() != null
+                && order.getCustomer().getUser().getId().equals(userId);
+
+        if (isCustomer) {
+            if (order.getLocation() == null || order.getLocation().getVendor() == null
+                    || order.getLocation().getVendor().getUser() == null) {
+                throw new ResourceNotFoundException("Vendor user not found for this order.");
+            }
+            rated = order.getLocation().getVendor().getUser();
+        } else {
+            // Check rater is the vendor
+            boolean isVendor = order.getLocation() != null
+                    && order.getLocation().getVendor() != null
+                    && order.getLocation().getVendor().getUser() != null
+                    && order.getLocation().getVendor().getUser().getId().equals(userId);
+            if (!isVendor) {
+                throw new AccessDeniedException("Only the customer or vendor of this order can submit a rating.");
+            }
+            if (order.getCustomer() == null || order.getCustomer().getUser() == null) {
+                throw new ResourceNotFoundException("Customer user not found for this order.");
+            }
+            rated = order.getCustomer().getUser();
+        }
+
+        UserRating rating = new UserRating();
+        rating.setRater(rater);
+        rating.setRated(rated);
+        rating.setOrder(order);
+        rating.setScore(request.score());
+        rating.setComment(request.comment());
+        rating.setStatus(RatingStatus.PENDING);
+
+        return userRatingRepository.save(rating);
+    }
+
+    public record RateOrderRequest(Integer score, String comment) {}
+
     // ── Customer: my orders ──────────────────────────────────────────────────
 
     public List<Order> getMyOrders(Authentication authentication) {
@@ -174,6 +258,20 @@ public class OrderService {
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
+
+    private void assertIsVendorOfOrder(Order order, Authentication authentication) {
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        if (isAdmin) return;
+
+        Long userId = resolveUserId(authentication);
+        if (order.getLocation() == null
+                || order.getLocation().getVendor() == null
+                || order.getLocation().getVendor().getUser() == null
+                || !order.getLocation().getVendor().getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("Only the vendor at this location can mark the order as delivered.");
+        }
+    }
 
     private void assertCanCancelOrder(Order order, Authentication authentication) {
         boolean isAdmin = authentication.getAuthorities().stream()

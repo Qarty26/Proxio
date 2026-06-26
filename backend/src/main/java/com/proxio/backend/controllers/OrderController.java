@@ -1,8 +1,10 @@
 package com.proxio.backend.controllers;
 
 import com.proxio.backend.models.Order;
+import com.proxio.backend.models.UserRating;
 import com.proxio.backend.services.OrderService;
 import com.proxio.backend.services.OrderService.PlaceOrderRequest;
+import com.proxio.backend.services.OrderService.RateOrderRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -57,6 +59,18 @@ public class OrderController {
     @PostMapping("/{id}/cancel")
     public ResponseEntity<Order> cancel(@PathVariable Long id, Authentication authentication) {
         return ResponseEntity.ok(orderService.cancelOrder(id, authentication));
+    }
+
+    @PostMapping("/{id}/deliver")
+    public ResponseEntity<Order> deliver(@PathVariable Long id, Authentication authentication) {
+        return ResponseEntity.ok(orderService.markDelivered(id, authentication));
+    }
+
+    @PostMapping("/{id}/rate")
+    public ResponseEntity<UserRating> rate(@PathVariable Long id,
+                                           @RequestBody RateOrderRequest request,
+                                           Authentication authentication) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.rateOrder(id, request, authentication));
     }
 
     @PutMapping("/{id}")
