@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
     List<Stock> findByProductId(Long productId);
+    java.util.Optional<Stock> findByProductIdAndLocationId(Long productId, Long locationId);
 }
