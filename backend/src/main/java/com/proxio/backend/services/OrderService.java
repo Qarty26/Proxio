@@ -25,19 +25,22 @@ public class OrderService {
     private final VendorRepository vendorRepository;
     private final UserRepository userRepository;
     private final UserRatingRepository userRatingRepository;
+    private final PickupSlotRepository pickupSlotRepository;
 
     public OrderService(OrderRepository orderRepository,
                         CustomerService customerService,
                         StockRepository stockRepository,
                         VendorRepository vendorRepository,
                         UserRepository userRepository,
-                        UserRatingRepository userRatingRepository) {
+                        UserRatingRepository userRatingRepository,
+                        PickupSlotRepository pickupSlotRepository) {
         this.orderRepository = orderRepository;
         this.customerService = customerService;
         this.stockRepository = stockRepository;
         this.vendorRepository = vendorRepository;
         this.userRepository = userRepository;
         this.userRatingRepository = userRatingRepository;
+        this.pickupSlotRepository = pickupSlotRepository;
     }
 
     // ── Existing generic CRUD (kept for backward compatibility) ──────────────
@@ -113,6 +116,16 @@ public class OrderService {
         order.setCustomer(customer);
         order.setLocation(stock.getLocation());
         order.setStatus(OrderStatus.PENDING);
+
+        if (request.pickupSlotId() != null) {
+            PickupSlot slot = pickupSlotRepository.findById(request.pickupSlotId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Pickup slot not found."));
+            if (!slot.getLocation().getId().equals(request.locationId())) {
+                throw new IllegalArgumentException("Pickup slot does not belong to the selected location.");
+            }
+            order.setPickupSlot(slot);
+        }
+
         item.setOrder(order);
         order.setItems(List.of(item));
 
@@ -124,7 +137,7 @@ public class OrderService {
         return saved;
     }
 
-    public record PlaceOrderRequest(Long productId, Long locationId, Double quantity) {}
+    public record PlaceOrderRequest(Long productId, Long locationId, Double quantity, Long pickupSlotId) {}
 
     // ── Cancel order ─────────────────────────────────────────────────────────
 

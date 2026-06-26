@@ -35,6 +35,7 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "pickup_slot_id")
+    @JsonIgnoreProperties({"location"})
     private PickupSlot pickupSlot;
 
     @Enumerated(EnumType.STRING)

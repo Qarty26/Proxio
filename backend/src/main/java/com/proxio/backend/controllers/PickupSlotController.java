@@ -4,14 +4,8 @@ import com.proxio.backend.models.PickupSlot;
 import com.proxio.backend.services.PickupSlotService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,13 +20,18 @@ public class PickupSlotController {
     }
 
     @PostMapping
-    public ResponseEntity<PickupSlot> create(@RequestBody PickupSlot pickupSlot) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(pickupSlotService.create(pickupSlot));
+    public ResponseEntity<PickupSlot> create(@RequestBody PickupSlot pickupSlot, Authentication authentication) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(pickupSlotService.create(pickupSlot, authentication));
     }
 
     @GetMapping
-    public ResponseEntity<List<PickupSlot>> getAll() {
-        return ResponseEntity.ok(pickupSlotService.getAll());
+    public ResponseEntity<List<PickupSlot>> getAll(
+            @RequestParam(required = false) Long locationId,
+            Authentication authentication) {
+        List<PickupSlot> result = locationId != null
+                ? pickupSlotService.getByLocation(locationId)
+                : pickupSlotService.getAll(authentication);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")
@@ -41,13 +40,15 @@ public class PickupSlotController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PickupSlot> update(@PathVariable Long id, @RequestBody PickupSlot pickupSlot) {
-        return ResponseEntity.ok(pickupSlotService.update(id, pickupSlot));
+    public ResponseEntity<PickupSlot> update(@PathVariable Long id,
+                                             @RequestBody PickupSlot pickupSlot,
+                                             Authentication authentication) {
+        return ResponseEntity.ok(pickupSlotService.update(id, pickupSlot, authentication));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        pickupSlotService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id, Authentication authentication) {
+        pickupSlotService.delete(id, authentication);
         return ResponseEntity.noContent().build();
     }
 }
