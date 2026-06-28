@@ -31,6 +31,10 @@ public class StockService {
         return stockRepository.findAll();
     }
 
+    public List<Stock> getByProductId(Long productId) {
+        return stockRepository.findByProductId(productId);
+    }
+
     public Stock getById(Long id) {
         return stockRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Stock with id " + id + " was not found."));

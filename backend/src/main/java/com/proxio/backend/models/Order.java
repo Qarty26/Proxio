@@ -1,6 +1,6 @@
 package com.proxio.backend.models;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.proxio.backend.models.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,14 +25,17 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
+    @JsonIgnoreProperties({"orders", "subscriptions", "favoriteVendors"})
     private Customer customer;
 
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
+    @JsonIgnoreProperties({"orders", "stocks", "pickupSlots", "weeklyOffers", "vendor"})
     private Location location;
 
     @ManyToOne
     @JoinColumn(name = "pickup_slot_id")
+    @JsonIgnoreProperties({"location"})
     private PickupSlot pickupSlot;
 
     @Enumerated(EnumType.STRING)
@@ -46,8 +49,10 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"order"})
     private List<OrderItem> items;
 
     @OneToMany(mappedBy = "order")
+    @JsonIgnoreProperties({"order"})
     private List<UserRating> ratings;
 }

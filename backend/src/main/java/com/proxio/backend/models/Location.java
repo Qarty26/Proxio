@@ -1,5 +1,6 @@
 package com.proxio.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,7 @@ public class Location {
 
     @ManyToOne
     @JoinColumn(name = "vendor_id", nullable = false)
+    @JsonIgnoreProperties({"locations", "products", "subscriptions", "favoritedByCustomers", "user"})
     private Vendor vendor;
 
     @Column(nullable = false)
@@ -35,14 +37,18 @@ public class Location {
     private Double longitude;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"location"})
     private List<Stock> stocks;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"location"})
     private List<PickupSlot> pickupSlots;
 
     @OneToMany(mappedBy = "location")
+    @JsonIgnoreProperties({"location"})
     private List<Order> orders;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"location"})
     private List<WeeklyOffer> weeklyOffers;
 }

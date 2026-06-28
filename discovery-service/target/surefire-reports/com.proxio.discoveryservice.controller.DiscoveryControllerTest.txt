@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.proxio.discoveryservice.controller.DiscoveryControllerTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.650 s -- in com.proxio.discoveryservice.controller.DiscoveryControllerTest

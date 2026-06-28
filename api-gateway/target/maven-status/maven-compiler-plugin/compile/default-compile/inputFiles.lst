@@ -1,0 +1,13 @@
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\ApiGatewayApplication.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\config\CorsConfig.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\config\GatewayConfig.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\config\ProxyProperties.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\controller\GatewayOpsController.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\controller\GatewayProxyController.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\discovery\DiscoveryClient.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\discovery\ServiceInstance.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\discovery\TargetResolver.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\filter\CorrelationFilter.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\filter\RateLimitingFilter.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\resilience\CircuitBreakerRegistry.java
+C:\Users\denis\Desktop\repos\Proxio\api-gateway\src\main\java\com\proxio\apigateway\security\InternalTokenService.java

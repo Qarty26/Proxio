@@ -3,7 +3,9 @@ package com.proxio.backend.services;
 import com.proxio.backend.exceptions.CreateOperationException;
 import com.proxio.backend.exceptions.DeleteOperationException;
 import com.proxio.backend.exceptions.ResourceNotFoundException;
+import com.proxio.backend.models.User;
 import com.proxio.backend.models.Vendor;
+import com.proxio.backend.repositories.UserRepository;
 import com.proxio.backend.repositories.VendorRepository;
 
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,9 @@ class VendorServiceTest {
     @Mock
     private VendorRepository vendorRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     private VendorService vendorService;
 
@@ -31,7 +36,10 @@ class VendorServiceTest {
     void createReturnsSavedEntity() {
         Vendor entity = new Vendor();
         entity.setFarmName("Old Farm");
+        User user = user(1L);
+        entity.setUser(user);
 
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(vendorRepository.save(entity)).thenReturn(entity);
 
         Vendor result = vendorService.create(entity);
@@ -43,7 +51,10 @@ class VendorServiceTest {
     @Test
     void createWhenRepositoryThrowsExceptionThrowsCreateOperationException() {
         Vendor entity = new Vendor();
+        User user = user(1L);
+        entity.setUser(user);
 
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(vendorRepository.save(entity)).thenThrow(new RuntimeException());
 
         assertThrows(CreateOperationException.class, () -> vendorService.create(entity));
@@ -90,8 +101,11 @@ class VendorServiceTest {
 
         Vendor updated = new Vendor();
         updated.setFarmName("New Farm");
+        User user = user(1L);
+        updated.setUser(user);
 
         when(vendorRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(vendorRepository.save(existing)).thenReturn(existing);
 
         Vendor result = vendorService.update(1L, updated);
@@ -141,5 +155,11 @@ class VendorServiceTest {
         doThrow(new RuntimeException()).when(vendorRepository).delete(entity);
 
         assertThrows(DeleteOperationException.class, () -> vendorService.delete(1L));
+    }
+
+    private User user(Long id) {
+        User user = new User();
+        user.setId(id);
+        return user;
     }
 }

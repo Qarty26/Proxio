@@ -1,5 +1,6 @@
 package com.proxio.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,7 @@ public class PickupSlot {
 
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
+    @JsonIgnoreProperties({"pickupSlots", "stocks", "orders", "weeklyOffers", "vendor"})
     private Location location;
 
     @Column(nullable = false)

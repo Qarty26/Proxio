@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: api-gateway
+
+server:
+  port: 8081
+
+gateway:
+  targets:
+    backend: ${BACKEND_BASE_URL:http://localhost:8080}
+    notifications: ${NOTIFICATION_BASE_URL:http://localhost:8082}
+    discovery: ${DISCOVERY_BASE_URL:http://localhost:8761}
+    config: ${CONFIG_BASE_URL:http://localhost:8888}
+  resilience:
+    max-attempts: ${GATEWAY_MAX_ATTEMPTS:2}
+    request-timeout-ms: ${GATEWAY_REQUEST_TIMEOUT_MS:2500}
+    circuit-breaker:
+      failure-threshold: ${GATEWAY_CIRCUIT_BREAKER_FAILURE_THRESHOLD:3}
+      open-seconds: ${GATEWAY_CIRCUIT_BREAKER_OPEN_SECONDS:20}
+  internal-auth:
+    secret: ${INTERNAL_AUTH_SECRET:proxio-dev-internal-secret}
+    ttl-seconds: ${INTERNAL_AUTH_TTL_SECONDS:60}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+info:
+  app:
+    name: API Gateway
+    description: Central routing, request filtering, rate limiting, discovery, load balancing, and fallback

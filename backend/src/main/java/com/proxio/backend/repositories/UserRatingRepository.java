@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRatingRepository extends JpaRepository<UserRating, Long> {
+    boolean existsByOrderIdAndRaterId(Long orderId, Long raterId);
 }

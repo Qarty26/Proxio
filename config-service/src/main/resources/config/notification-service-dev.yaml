@@ -1,0 +1,6 @@
+application: notification-service
+profile: dev
+settings:
+  discovery: automatic registration and heartbeat
+  actuator: health,info,metrics,prometheus
+  internalAuth: enabled in docker-compose

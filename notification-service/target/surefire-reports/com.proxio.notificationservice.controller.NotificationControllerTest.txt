@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.proxio.notificationservice.controller.NotificationControllerTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.990 s -- in com.proxio.notificationservice.controller.NotificationControllerTest

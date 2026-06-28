@@ -1,0 +1,5 @@
+com\proxio\discoveryservice\controller\DiscoveryController.class
+com\proxio\discoveryservice\DiscoveryServiceApplication.class
+com\proxio\discoveryservice\model\ServiceRegistration.class
+com\proxio\discoveryservice\model\ServiceInstance.class
+com\proxio\discoveryservice\service\RegistryService.class

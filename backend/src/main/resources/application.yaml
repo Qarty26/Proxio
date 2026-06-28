@@ -1,6 +1,10 @@
 spring:
   application:
     name: backend
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
   jpa:
     show-sql: true
@@ -8,3 +12,34 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+info:
+  app:
+    name: Proxio Backend
+    description: Core marketplace API
+
+discovery:
+  base-url: ${DISCOVERY_BASE_URL:http://localhost:8761}
+  service-id: backend
+  instance-id: ${INSTANCE_ID:${HOSTNAME:backend-local}}
+  service-base-url: ${SERVICE_BASE_URL:http://localhost:8080}
+  heartbeat-ms: ${DISCOVERY_HEARTBEAT_MS:30000}
+
+proxio:
+  cache:
+    products-summary-ttl-seconds: ${PRODUCTS_SUMMARY_CACHE_TTL_SECONDS:60}
+  internal-auth:
+    enabled: ${INTERNAL_AUTH_ENABLED:false}
+    secret: ${INTERNAL_AUTH_SECRET:proxio-dev-internal-secret}
